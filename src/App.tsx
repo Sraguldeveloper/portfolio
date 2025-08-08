@@ -104,13 +104,13 @@ function App() {
       <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 
       {/* Navigation Bar */}
-      <nav className="sticky top-0 z-50 bg-white bg-opacity-95 shadow-lg py-4 px-4 rounded-b-xl backdrop-blur-sm"> {/* Reduced px for mobile */}
-        <div className="container mx-auto flex justify-center space-x-4 md:space-x-10"> {/* Adjusted space-x for mobile */}
-          <a href="#summary" className="text-gray-700 hover:text-blue-600 font-medium transition-colors duration-300 text-xs md:text-base">Summary</a> {/* Smaller text for mobile */}
-          <a href="#skills" className="text-gray-700 hover:text-blue-600 font-medium transition-colors duration-300 text-xs md:text-base">Skills</a>
-          <a href="#experience" className="text-gray-700 hover:text-blue-600 font-medium transition-colors duration-300 text-xs md:text-base">Experience</a>
-          <a href="#achievements" className="text-gray-700 hover:text-blue-600 font-medium transition-colors duration-300 text-xs md:text-base">Achievements</a>
-          <a href="#education" className="text-gray-700 hover:text-blue-600 font-medium transition-colors duration-300 text-xs md:text-base">Education</a>
+      <nav className="sticky top-0 z-50 bg-white bg-opacity-95 shadow-lg py-4 px-2 rounded-b-xl backdrop-blur-sm"> {/* Reduced px for mobile */}
+        <div className="container mx-auto flex justify-center flex-wrap space-x-2 md:space-x-10"> {/* Adjusted space-x and added flex-wrap for mobile */}
+          <a href="#summary" className="text-gray-700 hover:text-blue-600 font-medium transition-colors duration-300 text-[0.65rem] sm:text-xs md:text-base px-1 py-0.5 rounded-md">Summary</a> {/* Smaller text and added padding for touch targets */}
+          <a href="#skills" className="text-gray-700 hover:text-blue-600 font-medium transition-colors duration-300 text-[0.65rem] sm:text-xs md:text-base px-1 py-0.5 rounded-md">Skills</a>
+          <a href="#experience" className="text-gray-700 hover:text-blue-600 font-medium transition-colors duration-300 text-[0.65rem] sm:text-xs md:text-base px-1 py-0.5 rounded-md">Experience</a>
+          <a href="#achievements" className="text-gray-700 hover:text-blue-600 font-medium transition-colors duration-300 text-[0.65rem] sm:text-xs md:text-base px-1 py-0.5 rounded-md">Achievements</a>
+          <a href="#education" className="text-gray-700 hover:text-blue-600 font-medium transition-colors duration-300 text-[0.65rem] sm:text-xs md:text-base px-1 py-0.5 rounded-md">Education</a>
         </div>
       </nav>
 
