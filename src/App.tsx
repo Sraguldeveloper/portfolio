@@ -1,10 +1,70 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState, useCallback } from 'react';
 import * as THREE from 'three';
 
 function App() {
   const headerRef = useRef(null); // Ref for the header to append the canvas
   const animationFrameId = useRef<number | null>(null); // To store animation frame ID for cleanup
+  const [showBackToTop, setShowBackToTop] = useState(false);
 
+  // Refs for sections to observe for animations
+  const sectionRefs = {
+    summary: useRef<HTMLElement>(null),
+    skills: useRef<HTMLElement>(null),
+    experience: useRef<HTMLElement>(null),
+    achievements: useRef<HTMLElement>(null),
+    education: useRef<HTMLElement>(null),
+  };
+
+  // State to track if a section is in view
+  const [inView, setInView] = useState({
+    summary: false,
+    skills: false,
+    experience: false,
+    achievements: false,
+    education: false,
+  });
+
+  // Intersection Observer callback
+  const observerCallback = useCallback((entries: IntersectionObserverEntry[]) => {
+    entries.forEach(entry => {
+      const sectionId = entry.target.id;
+      // Ensure sectionId is a valid key before updating state
+      if (Object.keys(inView).includes(sectionId)) {
+        setInView(prev => ({
+          ...prev,
+          [sectionId as keyof typeof inView]: entry.isIntersecting,
+        }));
+      }
+    });
+  }, [inView]); // Dependency on inView to ensure observer is recreated if inView structure changes (unlikely here)
+
+  useEffect(() => {
+    // Setup Intersection Observer for sections
+    const observer = new IntersectionObserver(observerCallback, {
+      root: null, // viewport
+      rootMargin: '0px',
+      threshold: 0.1, // Trigger when 10% of the section is visible
+    });
+
+    // Observe each section
+    Object.values(sectionRefs).forEach(ref => {
+      if (ref.current) {
+        observer.observe(ref.current);
+      }
+    });
+
+    // Cleanup Intersection Observer
+    return () => {
+      Object.values(sectionRefs).forEach(ref => {
+        if (ref.current) {
+          observer.unobserve(ref.current);
+        }
+      });
+      observer.disconnect();
+    };
+  }, [observerCallback, sectionRefs]); // Added sectionRefs to dependencies
+
+  // Three.js setup for the header background
   useEffect(() => {
     if (!headerRef.current) return;
 
@@ -94,6 +154,31 @@ function App() {
     };
   }, []); // Empty dependency array means this runs once on mount
 
+  // Handle scroll for Back to Top button
+  useEffect(() => {
+    const handleScroll = () => {
+      if (window.scrollY > 300) { // Show button after scrolling 300px
+        setShowBackToTop(true);
+      } else {
+        setShowBackToTop(false);
+      }
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  const scrollToTop = () => {
+    window.scrollTo({
+      top: 0,
+      behavior: 'smooth',
+    });
+  };
+
+  // Helper function to get animation classes
+  const getAnimationClasses = (sectionId: keyof typeof inView) =>
+    inView[sectionId] ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10';
+
   return (
     <div className="min-h-screen bg-gray-50 font-inter text-gray-800 antialiased">
       {/* Tailwind CSS CDN */}
@@ -121,7 +206,7 @@ function App() {
           <div className="text-center md:text-left mb-6 md:mb-0">
             <h1 className="text-4xl md:text-6xl font-extrabold mb-2 leading-tight">Ragul Sethuraman</h1>
             <p className="text-xl md:text-3xl font-light opacity-90">Full-Stack Developer | 3+ Years Experience</p>
-            <p className="text-lg md:text-xl font-light opacity-80">Angular Node.js MongoDB AWS. React</p>
+            <p className="text-lg md:text-xl font-light opacity-80 mt-2">MEAN Stack | MERN Stack | AWS | Tailwindcss | PostgresSQL</p>
           </div>
           <div className="flex flex-col items-center md:items-end space-y-3">
             <a href="mailto:sragul1912@gmail.com" className="flex items-center text-white hover:text-blue-200 transition-colors duration-300 text-lg">
@@ -142,22 +227,30 @@ function App() {
 
       <main className="container mx-auto px-4 py-12 max-w-5xl">
         {/* Summary Section */}
-        <section id="summary" className="bg-white p-8 md:p-10 rounded-xl shadow-lg mb-12">
+        <section
+          id="summary"
+          ref={sectionRefs.summary}
+          className={`bg-white p-8 md:p-10 rounded-xl shadow-lg mb-12 transform transition-all duration-700 ${getAnimationClasses('summary')}`}
+        >
           <h2 className="text-3xl md:text-4xl font-bold text-blue-800 mb-6 flex items-center">
             <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-user mr-4"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
             Summary
           </h2>
           <p className="text-lg md:text-xl leading-relaxed text-gray-700">
             Full-Stack Developer with 3+ years of hands-on experience building scalable enterprise-grade web applications using the
-            <b>MEAN stack (MongoDB, Express.js, Angular, Node.js)</b> and <b>React</b>. Adept at designing robust <b>RESTful APIs</b>, integrating cloud
-            services <b>(AWS,S3)</b>, implementing <b>CI/CD (GitHub Actions, Jenkins)</b>, and following Agile methodologies. Known for
+            MEAN stack (MongoDB, Express.js, Angular, Node.js). Adept at designing robust RESTful APIs, integrating cloud
+            services (AWS S3), implementing CI/CD (GitHub Actions, Jenkins), and following Agile methodologies. Known for
             delivering impactful, user-centric applications including AI-powered learning platforms and automation tools. Seeking
             opportunities to leverage full-stack expertise to solve complex business problems.
           </p>
         </section>
 
         {/* Technical Skills Section */}
-        <section id="skills" className="bg-white p-8 md:p-10 rounded-xl shadow-lg mb-12">
+        <section
+          id="skills"
+          ref={sectionRefs.skills}
+          className={`bg-white p-8 md:p-10 rounded-xl shadow-lg mb-12 transform transition-all duration-700 ${getAnimationClasses('skills')}`}
+        >
           <h2 className="text-3xl md:text-4xl font-bold text-blue-800 mb-6 flex items-center">
             <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-wrench mr-4"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.77 3.77Z"/><path d="m14.7 6.3 1.6 1.6"/></svg>
             Technical Skills
@@ -275,7 +368,11 @@ function App() {
         </section>
 
         {/* Work Experience Section */}
-        <section id="experience" className="bg-white p-8 md:p-10 rounded-xl shadow-lg mb-12">
+        <section
+          id="experience"
+          ref={sectionRefs.experience}
+          className={`bg-white p-8 md:p-10 rounded-xl shadow-lg mb-12 transform transition-all duration-700 ${getAnimationClasses('experience')}`}
+        >
           <h2 className="text-3xl md:text-4xl font-bold text-blue-800 mb-6 flex items-center">
             <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-briefcase mr-4"><rect width="20" height="14" x="2" y="7" rx="2" ry="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
             Work Experience
@@ -314,20 +411,24 @@ function App() {
         </section>
 
         {/* Achievements Section */}
-        <section id="achievements" className="bg-white p-8 md:p-10 rounded-xl shadow-lg mb-12">
+        <section
+          id="achievements"
+          ref={sectionRefs.achievements}
+          className={`bg-white p-8 md:p-10 rounded-xl shadow-lg mb-12 transform transition-all duration-700 ${getAnimationClasses('achievements')}`}
+        >
           <h2 className="text-3xl md:text-4xl font-bold text-blue-800 mb-6 flex items-center">
             <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-award mr-4"><circle cx="12" cy="8" r="6"/><path d="M15.477 12.89L17.18 21l-5.15-3.62L6.82 21l1.703-8.11"/></svg>
             Achievements
           </h2>
           <div className="space-y-6">
             <div className="bg-blue-50 p-6 rounded-lg shadow-inner hover:shadow-md transition-shadow duration-300">
-              <h3 className="text-2xl font-semibold text-blue-700 mb-3">Award</h3>
+              <h3 className="2xl font-semibold text-blue-700 mb-3">Award</h3>
               <ul className="list-disc list-inside space-y-1 text-gray-700 text-lg">
                 <li>Insta Award for best contribution - Cohort Management Application (Infosys).</li>
               </ul>
             </div>
             <div className="bg-blue-50 p-6 rounded-lg shadow-inner hover:shadow-md transition-shadow duration-300">
-              <h3 className="text-2xl font-semibold text-blue-700 mb-3">Certifications</h3>
+              <h3 className="2xl font-semibold text-blue-700 mb-3">Certifications</h3>
               <ul className="list-disc list-inside space-y-1 text-gray-700 text-lg">
                 <li>MEAN Stack Developer - Infosys Foundation Program</li>
                 <li>API Development using Node & Express - Infosys</li>
@@ -340,7 +441,11 @@ function App() {
         </section>
 
         {/* Education Section */}
-        <section id="education" className="bg-white p-8 md:p-10 rounded-xl shadow-lg mb-12">
+        <section
+          id="education"
+          ref={sectionRefs.education}
+          className={`bg-white p-8 md:p-10 rounded-xl shadow-lg mb-12 transform transition-all duration-700 ${getAnimationClasses('education')}`}
+        >
           <h2 className="text-3xl md:text-4xl font-bold text-blue-800 mb-6 flex items-center">
             <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-graduation-cap mr-4"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v4c0 1.1.9 2 2 2h8a2 2 0 0 0 2-2v-4"/><path d="M12 22v-6"/></svg>
             Education
@@ -353,6 +458,17 @@ function App() {
           </div>
         </section>
       </main>
+
+      {/* Back to Top Button */}
+      {showBackToTop && (
+        <button
+          onClick={scrollToTop}
+          className="fixed bottom-6 right-6 bg-blue-600 text-white p-4 rounded-full shadow-lg hover:bg-blue-700 transition-all duration-300 z-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-75"
+          aria-label="Back to top"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-arrow-up"><path d="m5 12 7-7 7 7"/><path d="M12 19V5"/></svg>
+        </button>
+      )}
 
       {/* Footer */}
       <footer className="bg-blue-900 text-white p-6 text-center rounded-t-3xl shadow-xl">
