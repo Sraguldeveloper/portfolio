@@ -149,8 +149,8 @@ function App() {
           </h2>
           <p className="text-lg md:text-xl leading-relaxed text-gray-700">
             Full-Stack Developer with 3+ years of hands-on experience building scalable enterprise-grade web applications using the
-            MEAN stack (MongoDB, Express.js, Angular, Node.js). Adept at designing robust RESTful APIs, integrating cloud
-            services (AWS S3), implementing CI/CD (GitHub Actions, Jenkins), and following Agile methodologies. Known for
+            <b>MEAN stack (MongoDB, Express.js, Angular, Node.js)</b> and <b>React</b>. Adept at designing robust <b>RESTful APIs</b>, integrating cloud
+            services <b>(AWS,S3)</b>, implementing <b>CI/CD (GitHub Actions, Jenkins)</b>, and following Agile methodologies. Known for
             delivering impactful, user-centric applications including AI-powered learning platforms and automation tools. Seeking
             opportunities to leverage full-stack expertise to solve complex business problems.
           </p>
